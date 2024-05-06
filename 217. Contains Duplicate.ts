@@ -1,17 +1,6 @@
 function containsDuplicate(nums: number[]): boolean {
-    let founded: boolean = false;
-    for (const num of nums) {
-        const indexOfNum = nums.indexOf(num)
-        const newArr = nums.slice(indexOfNum + 1)
-
-        for (const numElement of newArr) {
-            if (numElement == num) {
-                founded = true
-                break
-            }
-        }
-    }
-    return founded
+    const set = new Set<number>(nums);
+    console.log(set)
+    return (set.size < nums.length);
 }
-
-console.log(containsDuplicate([1,23,4,4]))
+console.log(containsDuplicate([1,2,3,4,2]))
