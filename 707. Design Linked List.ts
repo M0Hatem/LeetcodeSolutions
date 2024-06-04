@@ -1,85 +1,148 @@
-class DoublyLinkedListNode{
-    public val:number
-    public next:DoublyLinkedListNode
-    public prv:DoublyLinkedListNode
-    constructor(val:number) {
-        this.val = val
-        this.next = null
-        this.prv = null
-    }
+class DLNode {
+    constructor(public val: number, public next: DLNode | null = null, public prev: null | DLNode = null) {}
 }
 
 class MyLinkedList {
-    head:DoublyLinkedListNode
-    tail:DoublyLinkedListNode
-    constructor() {
-        this.head = new DoublyLinkedListNode(-1)
-        this.tail = new DoublyLinkedListNode(-1)
+    private head: DLNode | null = null;
 
-        this.head.next = this.tail
-        this.tail.prv = this.head
+    private tail: DLNode | null = null;
+
+    private size = 0;
+
+    constructor() {}
+
+    getNode(index: number): DLNode | null {
+        if (index < 0 || index >= this.size) {
+            return null;
+        }
+
+        if (index > this.size / 2) {
+            let node = this.tail!;
+            let nodeIndex = this.size;
+
+            while (--nodeIndex !== index) {
+                node = node.prev!;
+            }
+
+            return node;
+        }
+
+        let node = this.head!;
+        let nodeIndex = 0;
+
+        while (nodeIndex++ !== index) {
+            node = node.next!;
+        }
+
+        return node;
     }
 
     get(index: number): number {
-        let currentNode:DoublyLinkedListNode = this.head.next
-        let counter:number = 0
-        while (currentNode !== this.tail && counter<index+1){
-            currentNode = currentNode.next
-            counter++
-        }
-        return currentNode.val
+        return this.getNode(index)?.val ?? -1;
     }
 
     addAtHead(val: number): void {
-        const newNode= new DoublyLinkedListNode(val)
+        const node = new DLNode(val);
 
-        newNode.next = this.head.next
-        newNode.prv = this.head
-        this.head.next.prv = newNode
-        this.head.next = newNode
+        if (this.head) {
+            node.next = this.head;
+            this.head.prev = node;
+        }
 
+        this.head = node;
+
+        if (!this.tail) {
+            this.tail = node;
+        }
+
+        this.size++;
     }
 
     addAtTail(val: number): void {
-        const newNode = new DoublyLinkedListNode(val)
+        const node = new DLNode(val);
 
-        newNode.next = this.tail
-        newNode.prv = this.tail.prv
-        this.tail.prv.next = newNode
-        this.tail.prv = newNode
+        if (this.tail) {
+            this.tail.next = node;
+            node.prev = this.tail;
+        }
+
+        this.tail = node;
+
+        if (!this.head) {
+            this.head = node;
+        }
+
+        this.size++;
     }
 
     addAtIndex(index: number, val: number): void {
-        let currentNode:DoublyLinkedListNode = this.head.next
-        let counter:number = 0
-        while(counter<index+1){
-            currentNode = currentNode.next
-            counter++
+        if (index < 0 || index > this.size) {
+            return;
         }
-        const newNode:DoublyLinkedListNode=new DoublyLinkedListNode(val)
-        newNode.next = currentNode
-        newNode.prv = currentNode.prv
-        currentNode.prv.next = newNode
-        currentNode.prv = newNode
+
+        if (index === 0) {
+            this.addAtHead(val);
+            return;
+        }
+
+        if (index === this.size) {
+            this.addAtTail(val);
+            return;
+        }
+
+        const node = new DLNode(val);
+
+        const nextNode = this.getNode(index)!;
+        const prevNode = nextNode.prev!;
+
+        prevNode.next = node;
+        node.prev = prevNode;
+
+        nextNode.prev = node;
+        node.next = nextNode;
+
+        this.size++;
     }
 
     deleteAtIndex(index: number): void {
-        let currentNode:DoublyLinkedListNode = this.head.next
-        let counter:number = 0
-        while(counter<index+1){
-            currentNode = currentNode.next
-            counter++
+        if (index < 0 || index >= this.size) {
+            return;
         }
 
+        if (index === 0) {
+            this.head = this.head?.next ?? null;
+
+            if (this.head) {
+                this.head.prev = null;
+            }
+
+            this.size--;
+            return;
+        }
+
+        if (index === this.size - 1) {
+            this.tail = this.tail?.prev ?? null;
+
+            if (this.tail) {
+                this.tail.next = null;
+            }
+
+            this.size--;
+            return;
+        }
+
+        const node = this.getNode(index)!;
+        const prevNode = node.prev;
+        const nextNode = node.next;
+
+        if (prevNode) {
+            prevNode.next = nextNode;
+        }
+
+        if (nextNode) {
+            nextNode.prev = prevNode;
+        }
+
+        this.size--;
     }
 }
-
-/**
- * Your MyLinkedList object will be instantiated and called as such:
- * var obj = new MyLinkedList()
- * var param_1 = obj.get(index)
- * obj.addAtHead(val)
- * obj.addAtTail(val)
- * obj.addAtIndex(index,val)
- * obj.deleteAtIndex(index)
- **/
